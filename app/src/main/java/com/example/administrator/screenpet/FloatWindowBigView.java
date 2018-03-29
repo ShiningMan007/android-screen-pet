@@ -24,6 +24,7 @@ public class FloatWindowBigView extends LinearLayout {
         Button close = (Button)findViewById(R.id.btn_close);
         Button back = (Button)findViewById(R.id.btn_back);
         Button main = (Button)findViewById(R.id.btn_main);
+        Button bluetooth = (Button)findViewById(R.id.small_bluetooth);
         close.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -48,6 +49,17 @@ public class FloatWindowBigView extends LinearLayout {
                 MyWindowManager.removeBigWindow(context);
                 MyWindowManager.createSmallWindow(context);
                 Intent intent = new Intent(getContext(), MainSettingActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
+        });
+
+        bluetooth.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyWindowManager.removeBigWindow(context);
+                MyWindowManager.createSmallWindow(context);
+                Intent intent = new Intent(getContext(),BluetoothActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }
