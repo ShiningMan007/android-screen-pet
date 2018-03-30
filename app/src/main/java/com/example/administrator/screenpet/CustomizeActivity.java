@@ -16,9 +16,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,9 +39,10 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 public class CustomizeActivity extends AppCompatActivity {
-    private static final int REQUEST_CONTENT_CODE = 1;
-    private static final int REQUEST_PREVIEW_CODE = 2;
+    private static final int REQUEST_GIF_CODE = 1;
+    private static final int REQUEST_MUS_CODE = 2;
     private ArrayList<String> gifPaths = new ArrayList<>();
+    private ArrayList<String> musPaths = new ArrayList<>();
     ArrayList name;
     private ArrayList<String>ListExtra=new ArrayList<>();
     private GridView gridView;
@@ -69,7 +72,7 @@ public class CustomizeActivity extends AppCompatActivity {
                     Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("*/*");
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    startActivityForResult(intent, REQUEST_CONTENT_CODE);
+                    startActivityForResult(intent, REQUEST_GIF_CODE);
                 }
 
                     else{
@@ -85,6 +88,10 @@ public class CustomizeActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, REQUEST_MUS_CODE);
 
             }
         });
@@ -98,47 +105,14 @@ public class CustomizeActivity extends AppCompatActivity {
         super.onActivityResult(requestCode,resultCode,data);
         if(resultCode==RESULT_OK){
             switch (requestCode){
-                case REQUEST_CONTENT_CODE:
+                case REQUEST_GIF_CODE:
                     Uri uri = data.getData();
-                    String fileName="";
-                    String[] proj = { MediaStore.Images.Media.DATA };
-                    CursorLoader loader = new CursorLoader(this, uri, proj, null, null, null);
-                    Cursor cursor = loader.loadInBackground();
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
-                        if (data.getScheme().toString().compareTo("content") == 0) {
-                            cursor = getContentResolver().query(uri,
-                                    new String[] {MediaStore.Audio.Media.DATA}, null, null, null);
-                            if (cursor.moveToFirst()) {
-                                fileName = cursor.getString(0);
-                            }
-                        }else if (data.getScheme().toString().compareTo("file") == 0)         //file:///开头的uri
-                        {
-                            //fileName = data.toString();
-                            fileName = data.toString().replace("file://", "");
-                            //替换file://
-                            if(!fileName.startsWith("/mnt")){
-                                //加上"/mnt"头
-                                fileName += "/mnt";
-                            }
-                        }
-                    }
-                    else{
-                        fileName=getPath(this,uri);
-                    }
-                    //Toast.makeText(this, "文件路径："+fileName, Toast.LENGTH_SHORT).show();
+                    String fileName=checkFileName(uri,data);
                     if(fileName.endsWith(".gif")){
                         Toast.makeText(this, "文件路径："+fileName, Toast.LENGTH_SHORT).show();
 
                         File file=new File(fileName);
                         gifImageView=(GifImageView)findViewById(R.id.gifImageView);
-
-
-                        /*try{
-                            gifFromFile = new GifDrawable(file);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                        gifImageView.setImageDrawable(gifFromFile);*/
                     }
                     else{
                         Toast.makeText(this,"Error!",Toast.LENGTH_SHORT).show();
@@ -146,10 +120,19 @@ public class CustomizeActivity extends AppCompatActivity {
                     ListExtra.add(fileName);
                     loadAdapter(fileName,100);
                     break;
-                case REQUEST_PREVIEW_CODE:
-                    //ListExtra = null;
-
-                    //loadAdapter("",100);
+                case REQUEST_MUS_CODE:
+                    Uri uri1 = data.getData();
+                    String fileName1=checkFileName(uri1,data);
+                    if(fileName1.endsWith(".mp3") || fileName1.endsWith(".wav")){
+                        musPaths.add(fileName1);
+                        MusicAdapter adapter=new MusicAdapter(CustomizeActivity.this,R.layout.item_music,musPaths);
+                        //ArrayAdapter<String>adapter=new ArrayAdapter<String>(CustomizeActivity.this,R.layout.item_music,musPaths);
+                        ListView listView=(ListView)findViewById(R.id.list_view);
+                        listView.setAdapter(adapter);
+                    }
+                    else{
+                        Toast.makeText(this,"Error!",Toast.LENGTH_SHORT).show();
+                    }
                     break;
             }
         }
@@ -173,6 +156,35 @@ public class CustomizeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    private String checkFileName(Uri uri,Intent data){
+        String fileName="";
+        String[] proj = { MediaStore.Images.Media.DATA };
+        CursorLoader loader = new CursorLoader(this, uri, proj, null, null, null);
+        Cursor cursor = loader.loadInBackground();
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
+            if (data.getScheme().toString().compareTo("content") == 0) {
+                cursor = getContentResolver().query(uri,
+                        new String[] {MediaStore.Audio.Media.DATA}, null, null, null);
+                if (cursor.moveToFirst()) {
+                    fileName = cursor.getString(0);
+                }
+            }else if (data.getScheme().toString().compareTo("file") == 0)         //file:///开头的uri
+            {
+                //fileName = data.toString();
+                fileName = data.toString().replace("file://", "");
+                //替换file://
+                if(!fileName.startsWith("/mnt")){
+                    //加上"/mnt"头
+                    fileName += "/mnt";
+                }
+            }
+        }
+        else{
+            fileName=getPath(this,uri);
+        }
+        return fileName;
+    }
+
     public static String getPath(final Context context, final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
