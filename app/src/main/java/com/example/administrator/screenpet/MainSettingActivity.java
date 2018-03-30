@@ -64,5 +64,14 @@ public class MainSettingActivity extends AppCompatActivity {
             }
         });
 
+        Button btn_bluetooth = (Button)findViewById(R.id.bluetooth);
+        btn_bluetooth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainSettingActivity.this,BluetoothActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 }
