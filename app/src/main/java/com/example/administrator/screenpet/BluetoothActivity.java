@@ -50,13 +50,6 @@ public class BluetoothActivity extends AppCompatActivity implements
     private BluetoothAdapter mBluetooth;
     private ArrayList<BlueDevice> mDeviceList = new ArrayList<BlueDevice>();
 
-
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,10 +99,7 @@ public class BluetoothActivity extends AppCompatActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-<<<<<<< HEAD
-    //改变CheckBox的值
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
+
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView.getId() == R.id.ck_bluetooth) {
@@ -129,10 +119,6 @@ public class BluetoothActivity extends AppCompatActivity implements
         }
     }
 
-<<<<<<< HEAD
-    //接收消息
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     private Runnable mAccept = new Runnable() {
         @Override
         public void run() {
@@ -146,10 +132,6 @@ public class BluetoothActivity extends AppCompatActivity implements
         }
     };
 
-<<<<<<< HEAD
-    //TextView的点击事件
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.tv_discovery) {
@@ -158,10 +140,7 @@ public class BluetoothActivity extends AppCompatActivity implements
         }
     }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -177,10 +156,6 @@ public class BluetoothActivity extends AppCompatActivity implements
         }*/
     }
 
-<<<<<<< HEAD
-    //一段时间后再次搜索设备
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     private Runnable mRefresh = new Runnable() {
         @Override
         public void run() {
@@ -189,10 +164,6 @@ public class BluetoothActivity extends AppCompatActivity implements
         }
     };
 
-<<<<<<< HEAD
-    //在运行程序时检查蓝牙是否突然被关掉或被开启
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     private  Runnable isTurnOff = new Runnable() {
         @Override
         public void run() {
@@ -207,10 +178,7 @@ public class BluetoothActivity extends AppCompatActivity implements
         }
     };
 
-<<<<<<< HEAD
-    //开始检索开启蓝牙的设备
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
+
     private void beginDiscovery() {
         if (mBluetooth.isDiscovering() != true) {
             mDeviceList.clear();
@@ -223,10 +191,7 @@ public class BluetoothActivity extends AppCompatActivity implements
 
     }
 
-<<<<<<< HEAD
-    //结束检索
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
+
     private void cancelDiscovery() {
         mHandler.removeCallbacks(mRefresh);
         tv_discovery.setText("取消搜索蓝牙设备");
@@ -255,10 +220,6 @@ public class BluetoothActivity extends AppCompatActivity implements
         unregisterReceiver(blueReceiver);
     }
 
-<<<<<<< HEAD
-    //创建广播用于显示检索到的设备及配对情况
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     private BluetoothReceiver blueReceiver;
 
     private class BluetoothReceiver extends BroadcastReceiver {
@@ -291,10 +252,6 @@ public class BluetoothActivity extends AppCompatActivity implements
         }
     }
 
-<<<<<<< HEAD
-    //listView的item点击事件
-=======
->>>>>>> 7966d6043df4260a2d5bedc83ee6b89281bbfc10
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         cancelDiscovery();
