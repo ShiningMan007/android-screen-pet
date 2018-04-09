@@ -25,6 +25,19 @@
         android:background="#CCCCCC"
         android:layout_marginTop="25px"
         ></View>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="选择音频"
+        android:textSize="25sp"/>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_view">
+
+    </ListView>
+
     <Button
         android:id="@+id/submit"
         android:layout_width="match_parent"
@@ -35,6 +48,6 @@
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
-        android:text="确定"
-        />
+        android:text="选择"></Button>
+
 </LinearLayout>
