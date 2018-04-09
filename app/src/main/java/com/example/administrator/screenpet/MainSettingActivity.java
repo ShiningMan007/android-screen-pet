@@ -44,7 +44,9 @@ public class MainSettingActivity extends AppCompatActivity {
         btn_customize.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getBaseContext(), "customize your pet", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainSettingActivity.this,CustomizeActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
