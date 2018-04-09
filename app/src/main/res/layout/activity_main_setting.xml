@@ -50,5 +50,12 @@
         android:alpha="0.7"
         android:text="Setting" />
 
+    <Button
+        android:id="@+id/bluetooth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.7"
+        android:text="Bluetooth" />
+
 
 </LinearLayout>
