@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,7 +31,11 @@ import org.json.JSONArray;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,25 +45,34 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 public class CustomizeActivity extends AppCompatActivity {
-    private static final int REQUEST_GIF_CODE = 1;
-    private static final int REQUEST_MUS_CODE = 2;
+    private static final int REQUEST_GIF_CODE_HAPPY = 1;
+    private static final int REQUEST_GIF_CODE_SAD = 2;
+    private static final int REQUEST_MUS_CODE = 3;
     private ArrayList<String> gifPaths = new ArrayList<>();
+    private ArrayList<String> gifPaths_sad = new ArrayList<>();
     private ArrayList<String> musPaths = new ArrayList<>();
     ArrayList name;
-    private ArrayList<String>ListExtra=new ArrayList<>();
-    private GridView gridView;
+    private ArrayList<String>ListExtra_happy=new ArrayList<>();
+    private ArrayList<String>ListExtra_sad=new ArrayList<>();
+    private MyGridView gridView;
+    private MyListView musiclistview;
     private GridAdapter gridAdapter;
-    private TextView tv_click;
+    private MusicAdapter musicadapter;
+    private GridAdapter gridAdapter_sad;
     private Button submit;
     private EditText textView;
     private GifImageView gifImageView;
     private GifDrawable gifFromFile;
     private String TAG =CustomizeActivity.class.getSimpleName();
+    private GridView gridView_sad;
+    public static final String filedir_happy="happydirs.data";
+    public static final String filedir_sad="saddirs.data";
+    public static final String musicdir = "music.data";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customize);
-        gridView=(GridView)findViewById(R.id.gridView);
+        gridView=(MyGridView)findViewById(R.id.gridView);
         submit=(Button)findViewById(R.id.submit);
         int cols = getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().densityDpi;
         cols = cols < 3 ? 3 : cols;
@@ -72,19 +87,46 @@ public class CustomizeActivity extends AppCompatActivity {
                     Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("*/*");
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    startActivityForResult(intent, REQUEST_GIF_CODE);
+                    startActivityForResult(intent, REQUEST_GIF_CODE_HAPPY);
                 }
-
-                    else{
+                else{
                     Toast.makeText(CustomizeActivity.this,""+position,Toast.LENGTH_SHORT).show();
                     //gifPaths.remove(position);
-                    loadAdapter("",position);
+                    showNormalDialog(position, REQUEST_GIF_CODE_HAPPY);
                 }
             }
         });
+        gridView_sad = (GridView)findViewById(R.id.gridView_sad);
+        gridView_sad.setNumColumns(cols);
+        gridView_sad.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String imgs = (String) parent.getItemAtPosition(position);
+                if ("adding".equals(imgs) ){
+                    //Toast.makeText(CustomizeActivity.this,"adding",Toast.LENGTH_SHORT).show();
+                    Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    startActivityForResult(intent, REQUEST_GIF_CODE_SAD);
+                }
+
+                else{
+                    Toast.makeText(CustomizeActivity.this,""+position,Toast.LENGTH_SHORT).show();
+                    //gifPaths.remove(position);
+                    showNormalDialog(position, REQUEST_GIF_CODE_SAD);
+                }
+            }
+        });
+
+        gifPaths = readfile(filedir_happy);
         gifPaths.add("adding");
         gridAdapter=new GridAdapter(gifPaths,CustomizeActivity.this);
+        gifPaths_sad = readfile(filedir_sad);
+        gifPaths_sad.add("adding");
+        gridAdapter_sad = new GridAdapter(gifPaths_sad, CustomizeActivity.this);
+
         gridView.setAdapter(gridAdapter);
+        gridView_sad.setAdapter(gridAdapter_sad);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,6 +137,10 @@ public class CustomizeActivity extends AppCompatActivity {
 
             }
         });
+        musiclistview = (MyListView)findViewById(R.id.list_view);
+        musPaths = readfile(musicdir);
+        musicadapter=new MusicAdapter(CustomizeActivity.this, R.layout.item_music, musPaths);
+        musiclistview.setAdapter(musicadapter);
     }
     @Override
     protected void onResume(){
@@ -103,11 +149,11 @@ public class CustomizeActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
-        if(resultCode==RESULT_OK){
-            switch (requestCode){
-                case REQUEST_GIF_CODE:
+        if(resultCode==RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_GIF_CODE_HAPPY:
                     Uri uri = data.getData();
-                    String fileName=checkFileName(uri,data);
+                    String fileName=uri.getPath();
                     if(fileName.endsWith(".gif")){
                         Toast.makeText(this, "文件路径："+fileName, Toast.LENGTH_SHORT).show();
 
@@ -117,18 +163,31 @@ public class CustomizeActivity extends AppCompatActivity {
                     else{
                         Toast.makeText(this,"Error!",Toast.LENGTH_SHORT).show();
                     }
-                    ListExtra.add(fileName);
-                    loadAdapter(fileName,100);
+                    ListExtra_happy.add(fileName);
+                    loadAdapter(fileName,100, requestCode);
+                    break;
+                case REQUEST_GIF_CODE_SAD:
+                    Uri uri2 = data.getData();
+                    String fileName2= uri2.getPath();
+                    if(fileName2.endsWith(".gif")){
+                        Toast.makeText(this, "文件路径："+fileName2, Toast.LENGTH_SHORT).show();
+
+                        File file=new File(fileName2);
+                        gifImageView=(GifImageView)findViewById(R.id.gifImageView);
+                    }
+                    else{
+                        Toast.makeText(this,"Error!",Toast.LENGTH_SHORT).show();
+                    }
+                    ListExtra_sad.add(fileName2);
+                    loadAdapter(fileName2,100, requestCode);
                     break;
                 case REQUEST_MUS_CODE:
                     Uri uri1 = data.getData();
-                    String fileName1=checkFileName(uri1,data);
+                    String fileName1=uri1.getPath();
                     if(fileName1.endsWith(".mp3") || fileName1.endsWith(".wav")){
                         musPaths.add(fileName1);
-                        MusicAdapter adapter=new MusicAdapter(CustomizeActivity.this,R.layout.item_music,musPaths);
-                        //ArrayAdapter<String>adapter=new ArrayAdapter<String>(CustomizeActivity.this,R.layout.item_music,musPaths);
-                        ListView listView=(ListView)findViewById(R.id.list_view);
-                        listView.setAdapter(adapter);
+                        writefile(musicdir, musPaths.toString(), MODE_PRIVATE);
+                        musicadapter.notifyDataSetChanged();
                     }
                     else{
                         Toast.makeText(this,"Error!",Toast.LENGTH_SHORT).show();
@@ -137,23 +196,110 @@ public class CustomizeActivity extends AppCompatActivity {
             }
         }
     }
-    private void loadAdapter(String paths,int options){
-        if (gifPaths.contains("adding")){
-            gifPaths.remove("adding");
-        }
-        /*if (paths.contains("adding")){
-            paths.remove("adding");
-        }*/
-        //paths.add("adding");
-        if(options==100)gifPaths.add(paths);
-        else gifPaths.remove(options);
-        gifPaths.add("adding");
-        gridAdapter  = new GridAdapter(gifPaths,CustomizeActivity.this);
-        gridView.setAdapter(gridAdapter);
-        try{
-            JSONArray obj = new JSONArray(gifPaths);
-        }catch (Exception e){
+
+    private void showNormalDialog(final int position, final int code){
+        final AlertDialog.Builder normalDialog =
+                new AlertDialog.Builder(CustomizeActivity.this);
+        normalDialog.setIcon(R.drawable.a80_1);
+        normalDialog.setTitle("Do you want to delete it?");
+        normalDialog.setMessage("If you choose yes, this gif would be removed from this setting(not permenant removed).");
+        normalDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                loadAdapter("", position, code);
+            }
+        });
+        normalDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        normalDialog.show();
+    }
+
+    private boolean writefile(String writedir, String content ,int mode){
+        try {
+            FileOutputStream fos = openFileOutput(writedir, mode);
+            fos.write(content.getBytes());
+            fos.close();
+        }catch (FileNotFoundException e){
             e.printStackTrace();
+            return false;
+        }catch (IOException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    ArrayList<String> str2list(String str){
+        String pattern = ",[\\s]*|\\[|\\]";
+        String[] splits = str.split(pattern);
+        ArrayList<String> res = new ArrayList<>();
+        for(int i =1; i<splits.length; i++){
+            res.add(splits[i]);
+        }
+        return res;
+    }
+    private ArrayList<String> readfile(String readdir){
+        ArrayList<String> res = new ArrayList<>();
+        byte[] bytes = {};
+        try{
+            FileInputStream fis = openFileInput(readdir);
+            bytes = new byte[fis.available()];
+            fis.read(bytes);
+            String pathstr = new String(bytes);
+            res = str2list(pathstr);
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+            return res;
+        }catch (IOException e){
+            e.printStackTrace();
+            return res;
+        }
+        return res;
+    }
+    private void loadAdapter(String paths,int options, int code){
+        if(code == REQUEST_GIF_CODE_HAPPY) {
+            if (gifPaths.contains("adding")){
+                gifPaths.remove("adding");
+            }
+            /*if (paths.contains("adding")){
+                paths.remove("adding");
+            }*/
+            //paths.add("adding");
+            if(options==100)gifPaths.add(paths);
+            else gifPaths.remove(options);
+            writefile(filedir_happy, gifPaths.toString(), Context.MODE_PRIVATE);
+            gifPaths.add("adding");
+            gridAdapter  = new GridAdapter(gifPaths,CustomizeActivity.this);
+            gridView.setAdapter(gridAdapter);
+            try{
+                JSONArray obj = new JSONArray(gifPaths);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+        else if(code == REQUEST_GIF_CODE_SAD){
+            if (gifPaths_sad.contains("adding")){
+                gifPaths_sad.remove("adding");
+            }
+            /*if (paths.contains("adding")){
+                paths.remove("adding");
+            }*/
+            //paths.add("adding");
+            if(options==100)gifPaths_sad.add(paths);
+            else gifPaths_sad.remove(options);
+            writefile(filedir_sad, gifPaths_sad.toString(), Context.MODE_PRIVATE);
+            gifPaths_sad.add("adding");
+            gridAdapter_sad  = new GridAdapter(gifPaths_sad,CustomizeActivity.this);
+            gridView_sad.setAdapter(gridAdapter_sad);
+            try{
+                JSONArray obj = new JSONArray(gifPaths_sad);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
     private String checkFileName(Uri uri,Intent data){
@@ -184,7 +330,6 @@ public class CustomizeActivity extends AppCompatActivity {
         }
         return fileName;
     }
-
     public static String getPath(final Context context, final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -246,21 +391,6 @@ public class CustomizeActivity extends AppCompatActivity {
 
         return null;
     }
-
-    /**
-     * Get the value of the data column for this Uri. This is useful for
-     * MediaStore Uris, and other file-based ContentProviders.
-     *
-     * @param context
-     *            The context.
-     * @param uri
-     *            The Uri to query.
-     * @param selection
-     *            (Optional) Filter used in the query.
-     * @param selectionArgs
-     *            (Optional) Selection arguments used in the query.
-     * @return The value of the _data column, which is typically a file path.
-     */
     public static String getDataColumn(Context context, Uri uri, String selection,
                                        String[] selectionArgs) {
 
@@ -281,30 +411,12 @@ public class CustomizeActivity extends AppCompatActivity {
         }
         return null;
     }
-
-    /**
-     * @param uri
-     *            The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
     public static boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
-
-    /**
-     * @param uri
-     *            The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
     public static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
-
-    /**
-     * @param uri
-     *            The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
