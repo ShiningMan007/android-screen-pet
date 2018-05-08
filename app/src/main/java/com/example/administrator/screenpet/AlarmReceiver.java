@@ -13,7 +13,9 @@ public class AlarmReceiver extends BroadcastReceiver{
 
         boolean button_click = intent.getExtras().getBoolean("extra");
         long selected_id = intent.getExtras().getLong("music_id");
+
         String content  = intent.getExtras().getString("content");
+
 
 
         Log.e("Alarm Receiver", "key is "+String.valueOf(button_click));
@@ -24,7 +26,9 @@ public class AlarmReceiver extends BroadcastReceiver{
 
         service_intent.putExtra("extra", button_click);
         service_intent.putExtra("selected_id", selected_id);
+
         service_intent.putExtra("content", content);
+
 
         context.startService(service_intent);
     }

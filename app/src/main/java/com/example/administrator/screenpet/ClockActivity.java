@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -31,7 +32,9 @@ public class ClockActivity extends AppCompatActivity{
     PendingIntent pendingIntent;
     Spinner ringtone_spinner;
     long music_id_selected = 1;
+
     EditText mEdittext;
+
 
 
     @Override
@@ -52,7 +55,9 @@ public class ClockActivity extends AppCompatActivity{
 
         final Calendar calendar = Calendar.getInstance();
         Alarm_intent = new Intent(this.context, AlarmReceiver.class);
+
         mEdittext = (EditText) findViewById(R.id.et_clock_schedule_content);
+
 
         turn_on_btn = (Button)findViewById(R.id.btn_turn_on);
         turn_on_btn.setOnClickListener(new View.OnClickListener() {
@@ -93,11 +98,13 @@ public class ClockActivity extends AppCompatActivity{
                 Alarm_intent.putExtra("music_id", music_id_selected);
                 Alarm_intent.putExtra("content", mEdittext.getText().toString());
 
+
                 pendingIntent = PendingIntent.getBroadcast(context, 0, Alarm_intent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
                 long a = calendar.getTimeInMillis();
                 alarmManager.set(AlarmManager.RTC_WAKEUP, a, pendingIntent);
+
 
                 if(shouldBack){
                     Intent return_intent = new Intent(ClockActivity.this, ScheduleActivity.class);
@@ -117,6 +124,7 @@ public class ClockActivity extends AppCompatActivity{
         turn_off_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if( pendingIntent != null){
                     set_alarm_text("Alarm off");
                     alarmManager.cancel(pendingIntent);
@@ -138,6 +146,7 @@ public class ClockActivity extends AppCompatActivity{
                     shouldBack = false;
                     finish();
                 }
+
             }
         });
 
@@ -157,6 +166,7 @@ public class ClockActivity extends AppCompatActivity{
 
             }
         });
+
 
         Intent intent = getIntent();
         position = intent.getIntExtra("Position", -1);

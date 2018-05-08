@@ -18,6 +18,7 @@ public class RingtonePlayingService extends Service {
     boolean music_is_playing = false;
     long music_selected_id;
     String content;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("MusicService", "Yep2");
@@ -26,6 +27,7 @@ public class RingtonePlayingService extends Service {
         boolean click_button = intent.getExtras().getBoolean("extra");
         music_selected_id = intent.getExtras().getLong("selected_id");
         content = intent.getExtras().getString("content");
+
 
         if(click_button){
             start_id = 1;
@@ -65,6 +67,7 @@ public class RingtonePlayingService extends Service {
 
             Notification notification_popup = new Notification.Builder(this)
                     .setContentTitle(content)
+
                     .setContentText("Click me!").setContentIntent(pendingIntent_to_clock)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setAutoCancel(true).build();

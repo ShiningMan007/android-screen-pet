@@ -43,10 +43,12 @@
         </service>
 
         <activity android:name=".CustomizeActivity" />
+
         <activity android:name=".ScheduleActivity"></activity>
         <activity android:name=".ClockActivity"
             android:theme="@style/Theme.AppCompat.Light.Dialog.Alert"
             ></activity>
+
 
         <receiver android:name=".AlarmReceiver"></receiver>
         <service android:name=".RingtonePlayingService"></service>

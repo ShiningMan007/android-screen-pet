@@ -105,9 +105,11 @@ public class CustomizeActivity extends AppCompatActivity {
                 String imgs = (String) parent.getItemAtPosition(position);
                 if ("adding".equals(imgs) ){
                     //Toast.makeText(CustomizeActivity.this,"adding",Toast.LENGTH_SHORT).show();
+
                     Intent intent=new Intent(Intent.ACTION_PICK,
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     intent.setType("*/*");
+
                     startActivityForResult(intent, REQUEST_GIF_CODE_SAD);
                 }
 
@@ -171,6 +173,7 @@ public class CustomizeActivity extends AppCompatActivity {
                 case REQUEST_GIF_CODE_HAPPY:
                     Uri uri = data.getData();
                     String fileName= getRealPathFromURI(uri, getBaseContext());
+
                     if(fileName.endsWith(".gif")){
                         Toast.makeText(this, "文件路径："+fileName, Toast.LENGTH_SHORT).show();
 
@@ -186,6 +189,7 @@ public class CustomizeActivity extends AppCompatActivity {
                 case REQUEST_GIF_CODE_SAD:
                     Uri uri2 = data.getData();
                     String fileName2= getRealPathFromURI(uri2, getBaseContext());
+
                     if(fileName2.endsWith(".gif")){
                         Toast.makeText(this, "文件路径："+fileName2, Toast.LENGTH_SHORT).show();
 
@@ -202,6 +206,7 @@ public class CustomizeActivity extends AppCompatActivity {
                     Uri uri1 = data.getData();
                     String fileName1=getRealPathFromURI(uri1, getBaseContext());
                     if(fileName1.endsWith(".mp3") || fileName1.endsWith(".wav")) {
+
                         musPaths.add(fileName1);
                         writefile(musicdir, musPaths.toString(), MODE_PRIVATE);
                         musicadapter.notifyDataSetChanged();
