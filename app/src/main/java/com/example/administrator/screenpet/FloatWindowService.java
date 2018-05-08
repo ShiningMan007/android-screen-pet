@@ -4,14 +4,18 @@ package com.example.administrator.screenpet;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.usage.UsageStats;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -23,18 +27,46 @@ import java.util.TimerTask;
  * Created by Administrator on 2018/3/11/011.
  */
 
-public class FloatWindowService extends Service {
+public class FloatWindowService extends Service implements WechatMsg{
+    private ComeWxMessage comeWxMessage;
+    private WechatMsg myMessage;
+    public TextView textView ;
+    public static final int UPDATE_TEXT = 1;
+    public static final String SEND_WX_BROADCAST="SEND_WX_BROADCAST";
+    public static final String WX="com.tencent.mm";
 
-    /**
-     * 用于在线程中创建或移除悬浮窗。
-     */
+    public static final int HAPPY = 1;
+    public static final int SAD = -1;
     private Handler handler = new Handler();
-
-    /**
-     * 定时器，定时进行检测当前应该创建还是移除悬浮窗。
-     */
+    private Handler pet_handler = new Handler();
     private Timer timer;
+    private Handler displaywechat_handler = new Handler();
 
+    private BroadcastReceiver b=new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle=intent.getExtras();
+            String pachageName=bundle.getString("packageName");
+            String message = bundle.getString("message");
+            switch (pachageName){
+                case WX:
+                    MyWindowManager.refreshWechat(message);
+                    if(timer != null){
+                        timer.schedule(new RefreshWechatTask(), 5000);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+    private void registBroadCast() {
+        IntentFilter filter=new IntentFilter(SEND_WX_BROADCAST);
+        registerReceiver(b,filter);
+    }
+    public void unRegistBroadcast() {
+        unregisterReceiver(b);
+    }
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -46,7 +78,12 @@ public class FloatWindowService extends Service {
         if (timer == null) {
             timer = new Timer();
             timer.scheduleAtFixedRate(new RefreshTask(), 0, 500);
+            timer.scheduleAtFixedRate(new RefreshPetTask(), 0, 10000);
         }
+        myMessage=new FloatWindowService();
+        comeWxMessage=new ComeWxMessage(myMessage,this);
+        comeWxMessage.toggleNotificationListenerService();
+        registBroadCast();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -56,6 +93,25 @@ public class FloatWindowService extends Service {
         // Service被终止的同时也停止定时器继续运行
         timer.cancel();
         timer = null;
+        unRegistBroadcast();
+    }
+
+    @Override
+    public void comeWxMessage(String message) {
+
+    }
+
+    class RefreshWechatTask extends  TimerTask{
+        public void run(){
+            if (isHome() && MyWindowManager.isWindowShowing()) {
+                pet_handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MyWindowManager.refreshWechat("Ihateyouqzy");
+                    }
+                });
+            }
+        }
     }
 
     class RefreshTask extends TimerTask {
@@ -92,6 +148,23 @@ public class FloatWindowService extends Service {
             }
         }
 
+    }
+
+    private int determineMood(){
+        return HAPPY;
+    }
+
+    class RefreshPetTask extends TimerTask{
+        public void run(){
+            if (isHome() && MyWindowManager.isWindowShowing()) {
+                pet_handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MyWindowManager.refreshPet(getApplicationContext(), determineMood());
+                    }
+                });
+            }
+        }
     }
 
     /**

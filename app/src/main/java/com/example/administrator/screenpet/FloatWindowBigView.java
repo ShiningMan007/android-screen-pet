@@ -59,7 +59,7 @@ public class FloatWindowBigView extends LinearLayout {
             public void onClick(View view) {
                 MyWindowManager.removeBigWindow(context);
                 MyWindowManager.createSmallWindow(context);
-                Intent intent = new Intent(getContext(),BluetoothActivity.class);
+                Intent intent = new Intent(getContext(),ScheduleActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }

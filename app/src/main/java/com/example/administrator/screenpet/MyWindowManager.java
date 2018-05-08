@@ -1,15 +1,27 @@
 package com.example.administrator.screenpet;
 
+import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
+
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 /**
  * Created by Administrator on 2018/3/11/011.
@@ -128,5 +140,59 @@ public class MyWindowManager {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         getActivityManager(context).getMemoryInfo(mi);
         return mi.availMem;
+    }
+    private static ArrayList<String> str2list(String str){
+        String pattern = ",[\\s]*|\\[|\\]";
+        String[] splits = str.split(pattern);
+        ArrayList<String> res = new ArrayList<>();
+        for(int i =1; i<splits.length; i++){
+            res.add(splits[i]);
+        }
+        return res;
+    }
+    private static ArrayList<String> readfile(Context context, String readdir){
+        ArrayList<String> res = new ArrayList<>();
+        byte[] bytes = {};
+        try{
+            FileInputStream fis = context.openFileInput(readdir);
+            bytes = new byte[fis.available()];
+            fis.read(bytes);
+            String pathstr = new String(bytes);
+            res = str2list(pathstr);
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+            return res;
+        }catch (IOException e){
+            e.printStackTrace();
+            return res;
+        }
+        return res;
+    }
+    public static void refreshWechat(String str){
+        smallWindow.updateMessage(str);
+    }
+    public static void refreshPet(Context context, int mood){
+        String sad_filedir = CustomizeActivity.filedir_sad;
+        String happy_filedir = CustomizeActivity.filedir_happy;
+        ArrayList<String> sad_pathlist = readfile(context, sad_filedir);
+        ArrayList<String> happy_pathlist = readfile(context, happy_filedir);
+        ArrayList<String> choose = null;
+        if(mood == FloatWindowService.HAPPY){
+            choose = happy_pathlist;
+        }
+        else if(mood == FloatWindowService.SAD){
+            choose = sad_pathlist;
+        }
+        int length = choose.size();
+        if(length == 0){ return; }
+        Random rand = new Random();
+        int index = rand.nextInt(length);
+        String dir = choose.get(index);
+        boolean Res = smallWindow.updatePet(dir);
+        if(Res) return;
+        else{
+            Log.e("MyWindowManager", "Reflesh pet failed");
+            return;
+        }
     }
 }

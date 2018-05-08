@@ -1,24 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_customize"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.example.administrator.screenpet.CustomizeActivity">
-<TextView
+    android:scrollbars="none"
+    android:id="@+id/activity_customize">
+<LinearLayout
+    android:id="@+id/linearlayout_customize"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="选择动图"
-    android:textSize="25sp"
+    android:text="When He is Happy:"
+    android:textSize="20sp"
     />
-    <GridView
+    <com.example.administrator.screenpet.MyGridView
         android:id="@+id/gridView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:numColumns="3"
         android:horizontalSpacing="10dp"
-        android:verticalSpacing="10dp"></GridView>
+        android:verticalSpacing="10dp"></com.example.administrator.screenpet.MyGridView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#CCCCCC"
+        android:layout_marginTop="25px"
+        ></View>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="When He is Sad:"
+        android:textSize="20sp"
+        />
+    <com.example.administrator.screenpet.MyGridView
+        android:id="@+id/gridView_sad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numColumns="3"
+        android:horizontalSpacing="10dp"
+        android:verticalSpacing="10dp"></com.example.administrator.screenpet.MyGridView>
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
@@ -31,12 +54,12 @@
         android:layout_height="wrap_content"
         android:text="选择音频"
         android:textSize="25sp"/>
-    <ListView
+    <com.example.administrator.screenpet.MyListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/list_view">
 
-    </ListView>
+    </com.example.administrator.screenpet.MyListView>
 
     <Button
         android:id="@+id/submit"
@@ -49,5 +72,5 @@
         android:layout_marginRight="25dp"
         android:layout_marginTop="25dp"
         android:text="选择"></Button>
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

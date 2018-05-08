@@ -28,7 +28,8 @@ public class MainSettingActivity extends AppCompatActivity {
         btn_clock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getBaseContext(), "set clock", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainSettingActivity.this,ClockActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -36,7 +37,8 @@ public class MainSettingActivity extends AppCompatActivity {
         btn_add_schedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getBaseContext(), "add schedule", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainSettingActivity.this,ScheduleActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -46,7 +48,6 @@ public class MainSettingActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainSettingActivity.this,CustomizeActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
@@ -70,7 +71,7 @@ public class MainSettingActivity extends AppCompatActivity {
         btn_bluetooth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainSettingActivity.this,BluetoothActivity.class);
+                Intent intent = new Intent(MainSettingActivity.this, MyBluetoothActivity.class);
                 startActivity(intent);
             }
         });

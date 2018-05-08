@@ -12,8 +12,10 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"></uses-permission>
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
 
     <application
         android:allowBackup="true"
@@ -30,11 +32,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MyBluetoothActivity"></activity>
 
         <service android:name=".FloatWindowService" />
+        <service android:name=".WechatNotifyService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
 
         <activity android:name=".CustomizeActivity" />
-        <activity android:name=".BluetoothActivity" />
+        <activity android:name=".ScheduleActivity"></activity>
+        <activity android:name=".ClockActivity"
+            android:theme="@style/Theme.AppCompat.Light.Dialog.Alert"
+            ></activity>
+
+        <receiver android:name=".AlarmReceiver"></receiver>
+        <service android:name=".RingtonePlayingService"></service>
     </application>
 
 </manifest>
